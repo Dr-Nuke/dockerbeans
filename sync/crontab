@@ -1,0 +1,2 @@
+CRON_TZ=Europe/Zurich
+53 2 * * * /app/sync_once.sh >> /data/logs/sync.log 2>&1

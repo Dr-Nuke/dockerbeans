@@ -1,0 +1,41 @@
+services:
+  ledger-sync:
+    build:
+      context: ./sync
+    container_name: ledger-sync
+    environment:
+      - TZ=${TZ}
+      - CRON_TZ=${TZ}
+      - GIT_SSH_URL=${GIT_SSH_URL}
+      - GIT_BRANCH=${GIT_BRANCH}
+      - BEAN_FILE=${BEAN_FILE}
+      - ENABLE_GIT_CRYPT=${ENABLE_GIT_CRYPT}
+      - ENABLE_EMAIL_NOTIFICATIONS=${ENABLE_EMAIL_NOTIFICATIONS}
+    volumes:
+      # Shared data volume
+      - ledger_data:/data
+
+      # Secrets (read-only)
+      - ./secrets/dockerbeans-deploy-key:/run/secrets/dockerbeans-deploy-key:ro
+      - ./secrets/known_hosts:/run/secrets/known_hosts:ro
+      - ./secrets/gitcrypt.key:/run/secrets/gitcrypt.key:ro
+      - ./secrets/smtp.env:/run/secrets/smtp.env:ro
+    restart: unless-stopped
+
+  fava:
+    build:
+      context: ./fava
+    container_name: fava
+    environment:
+      - TZ=${TZ}
+      - BEAN_FILE=${BEAN_FILE}
+    volumes:
+      - ledger_data:/data:ro
+    ports:
+      - "5000:5000"
+    depends_on:
+      - ledger-sync
+    restart: unless-stopped
+
+volumes:
+  ledger_data:
