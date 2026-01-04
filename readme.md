@@ -71,6 +71,9 @@ It is designed to run unattended (e.g. on a Raspberry Pi), pulling updates night
 
 ## Known issues & lessons learned
 
+1. **No plugin support**
+    
+    This project uses vanilla Beancount v3. It does not support any custom plugins.
 1. **GIT_SSH_COMMAND must be applied correctly**
 
     - Must be exported or set inline
