@@ -12,7 +12,7 @@ services:
       - ENABLE_GIT_CRYPT=${ENABLE_GIT_CRYPT}
       - ENABLE_EMAIL_NOTIFICATIONS=${ENABLE_EMAIL_NOTIFICATIONS}
     volumes:
-      # Shared data volume
+      # Shared ledger data (read-write for sync)
       - ledger_data:/data
 
       # Secrets (read-only)
@@ -20,6 +20,8 @@ services:
       - ./secrets/known_hosts:/run/secrets/known_hosts:ro
       - ./secrets/gitcrypt.key:/run/secrets/gitcrypt.key:ro
       - ./secrets/smtp.env:/run/secrets/smtp.env:ro
+    security_opt:
+      - no-new-privileges:true
     restart: unless-stopped
 
   fava:
@@ -30,11 +32,44 @@ services:
       - TZ=${TZ}
       - BEAN_FILE=${BEAN_FILE}
     volumes:
+      # Ledger is strictly read-only here
       - ledger_data:/data:ro
-    ports:
-      - "5000:5000"
     depends_on:
       - ledger-sync
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  auth-proxy:
+    build:
+      context: ./auth-proxy
+    container_name: auth-proxy
+    ports:
+      - "5000:80"
+    environment:
+      - ENABLE_FAVA_AUTH=${ENABLE_FAVA_AUTH}
+    volumes:
+      - ./secrets/fava.htpasswd:/run/secrets/fava.htpasswd:ro
+    depends_on:
+      - fava
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     restart: unless-stopped
 
 volumes:

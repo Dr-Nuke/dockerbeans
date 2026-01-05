@@ -11,5 +11,4 @@ ENV PYTHONUNBUFFERED=1
 
 
 EXPOSE 5000
-CMD ["sh", "-lc", "fava --host 0.0.0.0 --port 5000 \"$BEAN_FILE\""]
 CMD ["sh", "-lc", "export BEAN_FILE_PATH=\"/data/repo/${BEAN_FILE}\" && fava --host 0.0.0.0 --port 5000 \"$BEAN_FILE_PATH\""]

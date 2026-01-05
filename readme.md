@@ -2,7 +2,7 @@
 
 `dockerbeans` is a small, self-contained Docker setup to **securely mirror a private Beancount ledger repository** and **serve it via Fava on the local network**.
 
-It is designed to run unattended (e.g. on a Raspberry Pi), pulling updates nightly from GitHub using a **read-only deploy key**, unlocking the repo with **git-crypt**, and exposing the ledger via **Fava (Beancount v3)**.
+It is designed to run unattended (e.g. on a Raspberry Pi), pulling updates nightly from GitHub using a **read-only deploy key**, unlocking the repo with **git-crypt**, and exposing the ledger via **Fava (Beancount v3)**. No write-back to the ledger/ repo is intended. It is purely for displaying a ledger.
 
 ---
 
@@ -25,6 +25,12 @@ It is designed to run unattended (e.g. on a Raspberry Pi), pulling updates night
     ```
     http://<host>:5000
 ## Step-by-step guide
+
+dockerbeans assumes:
+- trusted LAN
+- single user
+- read-only ledger viewing
+
 1. **Create a deploy key (read-only)**
 
         ssh-keygen -t ed25519 -f dockerbeans-deploy-key -C "dockerbeans deploy key"
@@ -38,7 +44,7 @@ It is designed to run unattended (e.g. on a Raspberry Pi), pulling updates night
         +-- dockerbeans-deploy-key
         +-- gitcrypt.key (only of git-crypt is used)
         +-- known_hosts
-        +-- smtp.env
+        +-- smtp.env (only if email notifications are used)
         +-- known_hosts
 
     Example for known_hosts:
