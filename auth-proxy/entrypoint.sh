@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -eu
 
 if [ "$ENABLE_FAVA_AUTH" = "true" ]; then
   export AUTH_REALM="Restricted"
@@ -9,6 +9,8 @@ fi
 
 envsubst '${AUTH_REALM}' \
   < /etc/nginx/nginx.conf.template \
-  > /etc/nginx/nginx.conf
+  > /tmp/nginx.conf
 
-exec nginx -g 'daemon off;'
+# Start nginx with the rendered config
+exec nginx -g 'daemon off;' -c /tmp/nginx.conf
+
